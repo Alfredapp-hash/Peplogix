@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct PepLogixApp: App {
@@ -6,5 +7,6 @@ struct PepLogixApp: App {
         WindowGroup {
             RootView()
         }
+        .modelContainer(for: [LogEntry.self, LibraryRecord.self])
     }
 }
