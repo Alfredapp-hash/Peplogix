@@ -3,12 +3,19 @@ import SwiftUI
 struct RootView: View {
     var body: some View {
         TabView {
-            Text("Today")
+            TodayView()
                 .tabItem { Label("Today", systemImage: "checkmark.circle") }
-            Text("Library")
+            LibraryView()
                 .tabItem { Label("Library", systemImage: "books.vertical") }
-            Text("Settings")
-                .tabItem { Label("Settings", systemImage: "gearshape") }
+            NavigationStack {
+                List {
+                    Section("Storage") {
+                        Label("Local-first", systemImage: "lock.shield")
+                    }
+                }
+                .navigationTitle("Settings")
+            }
+            .tabItem { Label("Settings", systemImage: "gearshape") }
         }
     }
 }
