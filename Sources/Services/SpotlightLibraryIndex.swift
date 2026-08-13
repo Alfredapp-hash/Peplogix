@@ -8,6 +8,12 @@ struct LibrarySearchDocument: Sendable, Hashable {
     let keywords: [String]
 }
 
+struct LibrarySearchHit: Sendable, Hashable, Identifiable {
+    let id: String
+    let title: String
+    let summary: String
+}
+
 actor SpotlightLibraryIndex {
     private let index = CSSearchableIndex(name: "com.peplogix.library")
 
@@ -26,5 +32,28 @@ actor SpotlightLibraryIndex {
             )
         }
         try await index.indexSearchableItems(items)
+    }
+
+    func search(_ query: String, limit: Int = 6) async throws -> [LibrarySearchHit] {
+        let context = CSSearchQueryContext()
+        context.fetchAttributes = ["title", "contentDescription"]
+        context.maxResultCount = limit
+
+        let escaped = query.replacingOccurrences(of: "\"", with: "")
+        let search = CSSearchQuery(queryString: "textContent == \"*\(escaped)*\"cd", queryContext: context)
+        var hits: [LibrarySearchHit] = []
+
+        for try await result in search.results {
+            let item = result.item
+            hits.append(
+                LibrarySearchHit(
+                    id: item.uniqueIdentifier,
+                    title: item.attributeSet.title ?? item.attributeSet.displayName ?? "Untitled",
+                    summary: item.attributeSet.contentDescription ?? ""
+                )
+            )
+        }
+
+        return hits
     }
 }
